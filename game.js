@@ -3,22 +3,13 @@ var game_type1  = "点击 开始";
 var canvasID      = "canvasID";
 var canvas_ele;
 var canvas_cts;
-var game_type_txt = "game_type";
 var mainbodyID    = "page_body";
 var status1       = 0;  // 0 : init screen 1: in game 3: quit or not, 4: showing solution
-var width,  		height ;
-var percent_w_init = 0.4, percent_h_init  = 0.4;
-var xywh_init ,  xywh_init1;
+var width,height ;
+var xywh_init1;
 var solved = 0, unsolved = 1362, totalQ = 1362;
 var this_quad;
-var time_now = 0, time_left = 0, time_tick = 0, game_tick = 0;  // time_tick is .01 second
-var pause_tick = 0, pause_total = 400, pause_total1;
-var coffee_tick = 0, coffee_total = 60001, coffee_num = 100, coffee_waiting = 0; 
-var now, before;
-var score_all = 0;  // the score 
-var game_type = -1;
 var id_array = new Array();
-var time_array = new Array();
 var show_sol = 1;
 
 var quad, quad_c, quad_pos;  // the four numbers now and their positions
@@ -31,7 +22,7 @@ var this_order;
 var num_rect, op_rect;
 var rect_clock, rect_solved, rect_unsolved, rect_score;
 var rect_quit, rect_skip, rect_undo, rect_redo;
-var rect_all, rect_QUIT_array; // rect_all is for game,  rect_QUIT_array is for quitting
+var rect_all; // rect_all is for game,  rect_QUIT_array is for quitting
 var rect_sol, rect_no_sol;
 var ep = 0.000001;
 
@@ -46,16 +37,7 @@ function arraytostring(array1){
 }
 
 
-function gameover(){// quit or finished all
-	document.getElementById("gamesub").game_type.value = game_type;
-	document.getElementById("gamesub").time_now.value =  time_now;
-	document.getElementById("gamesub").solved.value =  solved;
-	document.getElementById("gamesub").unsolved.value =  unsolved;
-	document.getElementById("gamesub").score_all.value =  Math.round(score_all);
-	document.getElementById("gamesub").id_array.value = arraytostring(id_array);
-	document.getElementById("gamesub").time_array.value =  arraytostring(time_array);
-	document.getElementById("gamesub").submit();
-}
+
 
 function new_quad(){
 //	this_order[this_quad * 0 ] = 0;
@@ -70,7 +52,6 @@ function new_quad(){
 		quad_c.push( Number(quad1[thisone]));
 		quad1.splice(thisone, 1);
 	}
-	time_tick = 0;
 	quad_pos = new Array(0,1,2,3);
 	op_focus = -1; // nothing on focus
 	num_focus = -1; // nothing on focus
@@ -82,31 +63,29 @@ function solved1(solvedone){ // just solved one quad, move on to the next one
 	id_array.push(this_order[this_quad]); // save the quad
 	this_quad++;
 	quad_all_prev = quad_all; quad_prev = quad_c;  
-	var a = quad_all_prev[1].split(" ");  
-	pause_total1 = pause_total + a.length * 100;
+	var a = quad_all_prev[1].split(" ");
 
-	if (solvedone){
-		solved ++;
-		time_array.push(time_tick);
-		//score_all += 10 * ( 1 + 2 / a.length);
-	}
-	else {time_array.push(-time_tick);}
+	if (solvedone){solved ++;}
 	unsolved --;
 	if (show_sol == 1)
-	{	pause_tick =0; status1 = 4; // showing solutions
+	{status1 = 4; // showing solutions
 	}
-	if (unsolved >0){ new_quad();  }
-	else{ 
-		status1 = 6;// game over 
-		gameover();
-		}
-	if (unsolved >0 && solvedone && solved%coffee_num ==0){
-		if (show_sol ==0)
-		{	coffee_tick = 0;status1 = 5;}
-		else{ coffee_tick = 0;coffee_waiting = 1;}
-	}
+	new_quad();
 	game_draw(0);
 }
+
+function solved2(solvedone){ // just solved one quad, move on to the next one
+	id_array.push(this_order[this_quad]); // save the quad
+	this_quad++;
+	quad_all_prev = quad_all; quad_prev = quad_c;  
+	var a = quad_all_prev[1].split(" ");
+
+	if (solvedone){solved ++;}
+	unsolved --;
+	new_quad();
+	game_draw(0);
+}
+
 
 function calc(num1, op1, num2){	// caucluate num1 (op1) num2
 	var num3 = 0.0;
@@ -205,10 +184,6 @@ function ongame(regionID){
 	else if (regionID ==10){//skip
 		solved1(0); // didn't solve one.
 	}
-	else if (regionID ==11){//quit
-		status1 = 3;
-		game_draw(0);
-	}
 }
 
 function init_game(){
@@ -219,7 +194,7 @@ function init_game(){
 	width  = canvas_ele.width;
 	height = canvas_ele.height;
 	status1   = 0;
-    xywh_init1 = new Array( width * percent_w_init / 2,   height * (percent_h_init / 1.2 ), 	  width * ( 1- percent_w_init),    height * ( 1- percent_h_init) / 2);
+    xywh_init1 = new Array( width * 0.2,height/3, width *0.6, height * 0.3);
 	canvas_cts = canvas_ele.getContext( "2d");
 	game_draw(0);
 }
@@ -295,18 +270,13 @@ function num_to_string1 (num1){
 
 function start_game(){
 	status1 = 1;
-	time_now = 0;
 	solved   = 0;
 //	totalQ = 1;
 	unsolved = totalQ;
-	score_all = 0;
 	this_quad = 0;  // start from the first game
 	this_order = game_order();
 	new_quad ();
-	now, before = new Date()
-	show_sol = 1;
-	pause_total = 501;
-	coffee_total = 60001; coffee_waiting = 0;
+	show_sol = 1;//0000
 
 	var rect1 = new Array( 0,0, 2*width/5, 2*height/5);
 	var rect2 = new Array( 3*width/5,0, 2*width/5, 2*height/5);
@@ -322,12 +292,13 @@ function start_game(){
 	op_rect = new Array(rect1, rect2, rect3, rect4);  // the rects for the numbers
 	rect_all.push(rect1, rect2, rect3, rect4);	
 
+	rect_solved   = new Array(2*width/5,0,width/5, height/5);
+
 	rect_undo = new Array( 0,2*height/5,width/5, height/5 );
 	rect_redo = new Array( 4*width/5,2*height/5,width/5, height/5 );
 	rect_skip = new Array( 2*width/5,4*height/5,width/5, height/5 );
 	rect_all.push(rect_undo, rect_redo, rect_skip); // rect 8,9,10,11
 
-	//rect_QUIT_array = new Array(rect1, rect2); 
 	rect_sol = new Array( width/10, height/10, 8*width/10, 8*height/10);
 	rect_no_sol = new Array( width/5, 8*height/10, 6*height/10,  1.6*height/10);
 							//x,不再出现x，宽度，
@@ -345,6 +316,9 @@ function game_draw(isclock){ // 0) status1, 1) game_type, 2) time, time_left, 3)
 		return;
 	}
 	draw_rect(Array(0,0, width, height), "#fff", 0, "#000"); // clean the whole region
+
+	draw_rect(rect_solved ,  "#fff", 0, "#999");  		
+	draw_text(Array(rect_solved[0], rect_solved[1] + rect_solved[3]/3), "    已 解 " + solved+" 题", "#666",Math.round(rect_solved[2]/8) +"px sans-serif");
 
 	draw_rect(rect_skip ,  "#fff", 1, "#999");
 	draw_text(Array(rect_skip[0], rect_skip[1] + rect_skip[3]/1.6), "    提 示", "#999", Math.round(rect_skip[2]/5) +"px sans-serif");
@@ -382,7 +356,7 @@ function game_draw(isclock){ // 0) status1, 1) game_type, 2) time, time_left, 3)
 		if (quad_pos[ii] == num_focus){
 			if (quad.length == 1){
 				if (Math.abs(quad[0] - 24) < ep){
-					if (status1 == 1) solved1(1);
+					solved2(1);//0000
 				}
 				else{
 					draw_rect(num_rect1,  "#fff", 6, "#FF0000"); 
@@ -400,17 +374,10 @@ function game_draw(isclock){ // 0) status1, 1) game_type, 2) time, time_left, 3)
 		}
 	}	
 
-	//rect_sol = new Array( width/10, height/10, 8*width/10, 8*height/10);
-	//rect_no_sol = new Array( width/5, 8*height/10, 6*height/10,  1.6*height/10);
-
-	if (status1 == 4 && show_sol){ // show the solutions waiting for the esc
+	if (status1 == 4 && show_sol){ // show the solutions 
 		draw_rect(rect_sol, "#fff", 2, "#bbb");
-		//draw_rect(rect_no_sol, "#fff", 4, "#bbb");
 		draw_text(Array(rect_no_sol[0] * 2, rect_sol[3] ), "  点我 关闭", "#888", Math.round(rect_no_sol[3]/5) +"px sans-serif");
 		draw_text(Array(rect_no_sol[0]* 2, rect_sol[1] * 0.5  + rect_sol[3] * 0.05 * 2.5 ),  quad_prev[0] + "  "+ quad_prev[1] + "  "+ quad_prev[2] + "  "+ quad_prev[3] , "#0F7100", "bold " + Math.round(rect_no_sol[3]/4) +"px sans-serif");
-
-		//draw_text(Array(rect_no_sol[0] * 0.5, rect_sol[1]  + rect_sol[3] * 0.05 * 3 ), "Solutions for   "  + quad_prev[0] + " "+ quad_prev[1] + " "+ quad_prev[2] + " "+ quad_prev[3] , "#000", "bold " + Math.round(rect_no_sol[3]/4) +"px sans-serif");
-
 		var sol_vec = quad_all_prev[1].split(" ");
 		if (sol_vec.length > 6){
 			for (ii = 0; ii < sol_vec.length; ii +=2)
@@ -422,8 +389,6 @@ function game_draw(isclock){ // 0) status1, 1) game_type, 2) time, time_left, 3)
 			for (ii = 0; ii < sol_vec.length; ii ++)
 			 draw_text(Array(rect_no_sol[0]* 2, rect_sol[1]  + rect_sol[3] * (0.05 *4.0+ ii * 0.09) ),sol_vec[ii], "#008", Math.round(rect_no_sol[3]/4) +"px sans-serif");
 		}
-		// quad_all_prev[1]
-		//draw_text(Array(rect_no_sol[0] * 2.1, rect_no_sol[1] * 1.15), "不再看到此页", "#888", "bold " + Math.round(rect_no_sol[3]/4) +"px sans-serif");
 
 	}
 
@@ -451,11 +416,10 @@ function onclick1 (e){
 			var regionID = click_ID(x,y,rect_all);
 			ongame(regionID);
 			game_draw(0);
-		break; 
+		break;
 		case 4: //show solutions
 			status1=1; game_draw(0);
 		break;
 		default : 
 	}
 }
- 
