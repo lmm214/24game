@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9">
+
+<title>24点游戏</title>
+
+</head>
+
+<body onload="init_game()" id="canvas_body">
+<style>
+canvas:focus {outline: 0;}
+#canvasID{-webkit-tap-highlight-color:rgba(0,0,0,0)}
+</style>
+
+<div id="page_body">
+
+<script type="text/javascript" src="game.js"> </script> 
+<script type="text/javascript" src="str.js"></script>
+
+<p align="center">
+<img src="floor.jpg" style="width:100%;height:auto;" id="floor_img"/>
+<canvas id="canvasID" style="border:solid 1px #999999;" tabindex="0"> 您的浏览器不支持 html5, 推荐 Firefox 和 Chrome. </canvas>
+</p>
+<script>
+var c=document.getElementById("canvasID");
+var ctx=c.getContext("2d");
+var img=document.getElementById("floor_img");
+img.onload=function(){
+	//console.log(img.width);
+	//console.log(img.height);
+	c.width=img.width;
+	c.height=img.height;
+	ctx.drawImage(img,0,0,img.width,img.height);
+	img.style.display="none";
+}
+</script>
+</div>
+
+
+</body>
+</html>
